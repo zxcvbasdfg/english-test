@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Test A1–B2</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e10;
+    --surface: #17171a;
+    --border: #2a2a30;
+    --accent: #e8c547;
+    --accent2: #5be0a8;
+    --text: #f0ede8;
+    --muted: #6b6b75;
+    --danger: #ff5f5f;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  .container { width: 100%; max-width: 680px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  #intro { text-align: center; animation: fadeUp 0.6s ease both; }
+
+  .badge {
+    display: inline-block;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 6px 14px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 8vw, 60px);
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    letter-spacing: 0.5px;
+  }
+
+  .start-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 16px 48px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .start-btn:hover { opacity: 0.9; }
+  .start-btn:active { transform: scale(0.98); }
+
+  #quiz { display: none; animation: fadeUp 0.4s ease both; }
+
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .progress-text { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .progress-text strong { color: var(--accent); }
+
+  .timer-display {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    transition: color 0.3s;
+  }
+
+  .timer-display.warning { color: var(--danger); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .progress-bar { height: 2px; background: var(--border); margin-bottom: 32px; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; }
+
+  .level-tag {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .level-tag::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: var(--muted);
+  }
+
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px, 4vw, 24px);
+    line-height: 1.5;
+    margin-bottom: 32px;
+    min-height: 80px;
+  }
+
+  .options { display: grid; gap: 10px; }
+
+  .option {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 16px 20px;
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .opt-key {
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .option:hover { border-color: var(--accent); background: #1e1d15; }
+  .option:hover .opt-key { border-color: var(--accent); color: var(--accent); }
+
+  .option.correct { border-color: var(--accent2); background: #0d1f18; }
+  .option.correct .opt-key { background: var(--accent2); color: #000; border-color: var(--accent2); }
+
+  .option.wrong { border-color: var(--danger); background: #1f0d0d; opacity: 0.8; }
+  .option.wrong .opt-key { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+  .option:disabled { cursor: not-allowed; }
+
+  #result { display: none; animation: fadeUp 0.5s ease both; }
+
+  .result-header { text-align: center; margin-bottom: 48px; }
+
+  .level-label { font-size: 11px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+
+  .level-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(48px, 12vw, 80px);
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .level-full { font-size: 14px; color: var(--muted); letter-spacing: 2px; }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 32px;
+  }
+
+  .score-cell { background: var(--surface); padding: 24px 16px; text-align: center; }
+  .score-val { font-size: 28px; font-weight: 500; color: var(--accent2); margin-bottom: 6px; }
+  .score-label { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+
+  .description {
+    border-left: 2px solid var(--accent);
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: #b0aaa8;
+  }
+
+  .breakdown { margin-bottom: 32px; }
+  .breakdown-title { font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-level { color: var(--muted); letter-spacing: 1px; }
+  .breakdown-score { color: var(--accent); }
+  .breakdown-bar-wrap { flex: 1; margin: 0 16px; height: 2px; background: var(--border); }
+  .breakdown-bar { height: 100%; background: var(--accent); transition: width 1s ease 0.5s; }
+
+  .restart-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .restart-btn:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div id="intro">
+    <div class="badge">A1 → B2</div>
+    <h1>What's your<br><span>English</span> level?</h1>
+    <p class="subtitle">20 questions · 3 minutes · No registration<br>From beginner to upper intermediate.</p>
+    <button class="start-btn" onclick="startQuiz()">Start Test →</button>
+  </div>
+
+  <div id="quiz">
+    <div class="quiz-header">
+      <div class="progress-text">Question <strong id="qNum">1</strong> of 20</div>
+      <div class="timer-display" id="timer">3:00</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="level-tag" id="levelTag"></div>
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="options"></div>
+  </div>
+
+  <div id="result">
+    <div class="result-header">
+      <div class="level-label">Your level</div>
+      <div class="level-name" id="resultLevel">—</div>
+      <div class="level-full" id="resultFull">—</div>
+    </div>
+    <div class="score-grid">
+      <div class="score-cell"><div class="score-val" id="resScore">—</div><div class="score-label">Score</div></div>
+      <div class="score-cell"><div class="score-val" id="resPercent">—</div><div class="score-label">Accuracy</div></div>
+      <div class="score-cell"><div class="score-val" id="resTime">—</div><div class="score-label">Time left</div></div>
+    </div>
+    <div class="description" id="resDesc"></div>
+    <div class="breakdown">
+      <div class="breakdown-title">Performance by level</div>
+      <div id="breakdownRows"></div>
+    </div>
+    <button class="restart-btn" onclick="restartQuiz()">↺ Retake Test</button>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  // A1 (5)
+  { level: "A1 · Beginner", lvl:"A1", q: "I ___ a student.", opts: ["am","is","are","be"], a: 0 },
+  { level: "A1 · Beginner", lvl:"A1", q: "She ___ from Spain.", opts: ["am","is","are","be"], a: 1 },
+  { level: "A1 · Beginner", lvl:"A1", q: "I have ___ umbrella.", opts: ["a","an","the","—"], a: 1 },
+  { level: "A1 · Beginner", lvl:"A1", q: "___ your name?", opts: ["What is","What are","Who are","How is"], a: 0 },
+  { level: "A1 · Beginner", lvl:"A1", q: "The cat is ___ the box.", opts: ["on","in","at","to"], a: 1 },
+  // A2 (5)
+  { level: "A2 · Elementary", lvl:"A2", q: "He ___ to work every day.", opts: ["go","goes","going","is go"], a: 1 },
+  { level: "A2 · Elementary", lvl:"A2", q: "We ___ TV last night.", opts: ["watch","watches","watched","were watch"], a: 2 },
+  { level: "A2 · Elementary", lvl:"A2", q: "There ___ a lot of people at the party.", opts: ["was","is","were","are"], a: 2 },
+  { level: "A2 · Elementary", lvl:"A2", q: "She ___ never been to Japan.", opts: ["did","is","has","had"], a: 2 },
+  { level: "A2 · Elementary", lvl:"A2", q: "I woke up ___ 7 o'clock.", opts: ["in","on","at","by"], a: 2 },
+  // B1 (5)
+  { level: "B1 · Intermediate", lvl:"B1", q: "If it rains tomorrow, we ___ stay home.", opts: ["would","will","should","might to"], a: 1 },
+  { level: "B1 · Intermediate", lvl:"B1", q: "The letter ___ yesterday.", opts: ["sent","was sent","has sent","is sent"], a: 1 },
+  { level: "B1 · Intermediate", lvl:"B1", q: "I wish I ___ more time to study.", opts: ["have","had","will have","would have"], a: 1 },
+  { level: "B1 · Intermediate", lvl:"B1", q: "She asked him ___ he was feeling better.", opts: ["that","if","what","whether to"], a: 1 },
+  { level: "B1 · Intermediate", lvl:"B1", q: "By 9pm, he ___ the report.", opts: ["finished","has finished","had finished","was finishing"], a: 2 },
+  // B2 (5)
+  { level: "B2 · Upper Intermediate", lvl:"B2", q: "Not only ___ late, but he forgot his notes.", opts: ["he was","was he","he did","did he"], a: 1 },
+  { level: "B2 · Upper Intermediate", lvl:"B2", q: "___ the traffic, she arrived on time.", opts: ["Although","Despite","Even though","However"], a: 1 },
+  { level: "B2 · Upper Intermediate", lvl:"B2", q: "He talks as if he ___ everything.", opts: ["knows","knew","know","had known"], a: 1 },
+  { level: "B2 · Upper Intermediate", lvl:"B2", q: "The new policy ___ a lot of controversy.", opts: ["raised","rose","arisen","has risen"], a: 0 },
+  { level: "B2 · Upper Intermediate", lvl:"B2", q: "Which word means 'to postpone'?", opts: ["put off","put on","put up","put in"], a: 0 },
+];
+
+const levelOrder = ["A1","A2","B1","B2"];
+const levelNames = { A1:"Beginner", A2:"Elementary", B1:"Intermediate", B2:"Upper Intermediate" };
+const levelDescs = {
+  A1: "You're at the very beginning. Focus on basic vocabulary, to be, articles, and simple questions. Daily practice even 10 minutes makes a big difference.",
+  A2: "You know the basics. Work on past tenses, Present Perfect, and expanding everyday vocabulary.",
+  B1: "Good independent level. You can handle most everyday situations. Focus on conditionals, passive voice, and reported speech.",
+  B2: "Upper intermediate — you communicate fluently on a wide range of topics. Work on nuance, inversion, and idiomatic expressions.",
+};
+
+let current = 0, score = 0, answered = false;
+let timerInterval, secondsLeft = 180;
+const perLevel = {};
+
+function startQuiz() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  timerInterval = setInterval(tickTimer, 1000);
+  showQuestion();
+}
+
+function tickTimer() {
+  secondsLeft--;
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  const el = document.getElementById('timer');
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  if (secondsLeft <= 30) el.classList.add('warning');
+  if (secondsLeft <= 0) { clearInterval(timerInterval); finishQuiz(); }
+}
+
+function showQuestion() {
+  answered = false;
+  const q = questions[current];
+  document.getElementById('qNum').textContent = current + 1;
+  document.getElementById('levelTag').textContent = q.level;
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('progressFill').style.width = `${(current / questions.length) * 100}%`;
+  const keys = ['A','B','C','D'];
+  const optEl = document.getElementById('options');
+  optEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="opt-key">${keys[i]}</span>${opt}`;
+    btn.onclick = () => selectAnswer(i, btn);
+    optEl.appendChild(btn);
+  });
+}
+
+function selectAnswer(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.option').forEach(b => b.setAttribute('disabled',''));
+  if (!perLevel[q.lvl]) perLevel[q.lvl] = { correct: 0, total: 0 };
+  perLevel[q.lvl].total++;
+  if (idx === q.a) {
+    btn.classList.add('correct');
+    score++;
+    perLevel[q.lvl].correct++;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.option')[q.a].classList.add('correct');
+  }
+  setTimeout(() => {
+    current++;
+    if (current >= questions.length) { clearInterval(timerInterval); finishQuiz(); }
+    else showQuestion();
+  }, 800);
+}
+
+function finishQuiz() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  const pct = Math.round((score / questions.length) * 100);
+  let level = "A1";
+  if (pct >= 75) level = "B2";
+  else if (pct >= 55) level = "B1";
+  else if (pct >= 35) level = "A2";
+  document.getElementById('resultLevel').textContent = level;
+  document.getElementById('resultFull').textContent = levelNames[level];
+  document.getElementById('resScore').textContent = `${score}/${questions.length}`;
+  document.getElementById('resPercent').textContent = `${pct}%`;
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  document.getElementById('resTime').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('resDesc').textContent = levelDescs[level];
+  const bEl = document.getElementById('breakdownRows');
+  bEl.innerHTML = '';
+  levelOrder.forEach(lvl => {
+    const d = perLevel[lvl] || { correct: 0, total: 0 };
+    const pctL = d.total ? Math.round((d.correct / d.total) * 100) : 0;
+    const row = document.createElement('div');
+    row.className = 'breakdown-row';
+    row.innerHTML = `
+      <span class="breakdown-level">${lvl}</span>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:0%" data-w="${pctL}"></div></div>
+      <span class="breakdown-score">${d.correct}/${d.total || '—'}</span>
+    `;
+    bEl.appendChild(row);
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.breakdown-bar').forEach(b => b.style.width = b.dataset.w + '%');
+  }, 100);
+}
+
+function restartQuiz() {
+  current = 0; score = 0; secondsLeft = 180;
+  Object.keys(perLevel).forEach(k => delete perLevel[k]);
+  document.getElementById('timer').classList.remove('warning');
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  timerInterval = setInterval(tickTimer, 1000);
+  showQuestion();
+}
+</script>
+</body>
+</html>
